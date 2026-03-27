@@ -274,6 +274,10 @@ func NewBMPServer(cfg *config.Config) (BMPServer, error) {
 		bmpSrv.bmpRaw = cfg.KafkaConfig.BmpRaw
 		bmpSrv.adminID = cfg.KafkaConfig.AdminID
 	}
+	if cfg.PublisherType == config.PublisherTypeNATS && cfg.NATSConfig != nil {
+		bmpSrv.bmpRaw = cfg.NATSConfig.BmpRaw
+		bmpSrv.adminID = cfg.NATSConfig.AdminID
+	}
 
 	return &bmpSrv, nil
 }

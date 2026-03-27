@@ -32,6 +32,7 @@ const (
 	flowspecMessageV4Topic = "gobmp.parsed.flowspec_v4"
 	flowspecMessageV6Topic = "gobmp.parsed.flowspec_v6"
 	statsMessageTopic      = "gobmp.parsed.statistics"
+	rawMessageTopic        = "gobmp.raw"
 )
 
 var (
@@ -85,6 +86,8 @@ func (p *publisher) PublishMessage(t int, key []byte, msg []byte) error {
 		return p.produceMessage(flowspecMessageV6Topic, key, msg)
 	case bmp.StatsReportMsg:
 		return p.produceMessage(statsMessageTopic, key, msg)
+	case bmp.BMPRawMsg:
+		return p.produceMessage(rawMessageTopic, key, msg)
 	}
 
 	return fmt.Errorf("not implemented")
@@ -117,7 +120,7 @@ func (p *publisher) createStreams() error {
 	// Define the stream configuration
 	streamConfig := &nats.StreamConfig{
 		Name:      "goBMP",
-		Subjects:  []string{"gobmp.parsed.*"},
+		Subjects:  []string{"gobmp.parsed.*", rawMessageTopic},
 		Storage:   nats.FileStorage,
 		Retention: nats.InterestPolicy,
 		MaxMsgs:   -1, // No limit

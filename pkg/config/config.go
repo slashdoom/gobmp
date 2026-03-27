@@ -44,6 +44,8 @@ type DumpConfig struct {
 
 type NATSConfig struct {
 	NatsSrv string `yaml:"nats_srv"`
+	BmpRaw  bool   `yaml:"bmp_raw"`
+	AdminID string `yaml:"admin_id"`
 }
 
 type KafkaConfig struct {

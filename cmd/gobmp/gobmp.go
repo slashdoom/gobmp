@@ -272,34 +272,17 @@ func applyConfigOverrides(cfg *config.Config, fs *flag.FlagSet) error {
 			}
 			cfg.KafkaConfig.KafkaTopicPrefix = kafkaTopicPrefix
 		case "bmp-raw":
-			if cfg.KafkaConfig == nil {
-				cfg.KafkaConfig = defaultKafkaConfig()
-			}
 			if bmpRaw == "" {
 				visitErr = errors.New("invalid empty value for --bmp-raw")
 				return
 			}
-			if v, err := strconv.ParseBool(bmpRaw); err != nil {
+			if _, err := strconv.ParseBool(bmpRaw); err != nil {
 				visitErr = fmt.Errorf("invalid value for --bmp-raw: %q: %w", bmpRaw, err)
 			} else {
-				cfg.KafkaConfig.BmpRaw = v
 				bmpRawSet = true
 			}
 		case "admin-id":
-			if cfg.KafkaConfig == nil {
-				cfg.KafkaConfig = defaultKafkaConfig()
-			}
-			cfg.KafkaConfig.AdminID = adminID
 			adminIDSet = true
-			if cfg.KafkaConfig.AdminID == "" {
-				hostname, err := os.Hostname()
-				if err != nil {
-					glog.Warningf("failed to get hostname, using 'gobmp-collector' as admin ID: %+v", err)
-					cfg.KafkaConfig.AdminID = "gobmp-collector"
-				} else {
-					cfg.KafkaConfig.AdminID = hostname
-				}
-			}
 		}
 	})
 	if visitErr != nil {
@@ -322,6 +305,39 @@ func applyConfigOverrides(cfg *config.Config, fs *flag.FlagSet) error {
 			cfg.PublisherType = config.PublisherTypeKafka
 		}
 	}
+	// Apply bmp-raw and admin-id CLI flags to the selected publisher's config.
+	if bmpRawSet || adminIDSet {
+		v, _ := strconv.ParseBool(bmpRaw) // already validated above
+		switch cfg.PublisherType {
+		case config.PublisherTypeKafka:
+			if cfg.KafkaConfig == nil {
+				cfg.KafkaConfig = defaultKafkaConfig()
+			}
+			if bmpRawSet {
+				cfg.KafkaConfig.BmpRaw = v
+			}
+			if adminIDSet {
+				cfg.KafkaConfig.AdminID = adminID
+			}
+		case config.PublisherTypeNATS:
+			if cfg.NATSConfig == nil {
+				cfg.NATSConfig = &config.NATSConfig{}
+			}
+			if bmpRawSet {
+				cfg.NATSConfig.BmpRaw = v
+			}
+			if adminIDSet {
+				cfg.NATSConfig.AdminID = adminID
+			}
+		default:
+			if bmpRawSet {
+				glog.Warningf("--bmp-raw is set but has no effect: no publisher configured")
+			}
+			if adminIDSet {
+				glog.Warningf("--admin-id is set but has no effect: no publisher configured")
+			}
+		}
+	}
 	// Ensure AdminID is set whenever Kafka is the selected publisher.
 	if cfg.PublisherType == config.PublisherTypeKafka && cfg.KafkaConfig != nil && cfg.KafkaConfig.AdminID == "" {
 		hostname, err := os.Hostname()
@@ -332,15 +348,14 @@ func applyConfigOverrides(cfg *config.Config, fs *flag.FlagSet) error {
 			cfg.KafkaConfig.AdminID = hostname
 		}
 	}
-	// Warn when Kafka-specific flags were provided but Kafka is not the selected
-	// publisher. The flags are accepted (not an error) to avoid breaking
-	// scripted invocations, but the operator should know they have no effect.
-	if cfg.PublisherType != config.PublisherTypeKafka {
-		if bmpRawSet {
-			glog.Warningf("--bmp-raw is set but has no effect: it only applies to the Kafka publisher (current publisher: %s)", cfg.PublisherType.String())
-		}
-		if adminIDSet {
-			glog.Warningf("--admin-id is set but has no effect: it only applies to the Kafka publisher (current publisher: %s)", cfg.PublisherType.String())
+	// Ensure AdminID is set whenever NATS raw mode is enabled.
+	if cfg.PublisherType == config.PublisherTypeNATS && cfg.NATSConfig != nil && cfg.NATSConfig.BmpRaw && cfg.NATSConfig.AdminID == "" {
+		hostname, err := os.Hostname()
+		if err != nil {
+			glog.Warningf("failed to get hostname, using 'gobmp-collector' as admin ID: %+v", err)
+			cfg.NATSConfig.AdminID = "gobmp-collector"
+		} else {
+			cfg.NATSConfig.AdminID = hostname
 		}
 	}
 	return nil
