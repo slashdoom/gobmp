@@ -14,6 +14,7 @@ import (
 // a slice of UnicatPrefix.
 // Used Only by Legacy IPv4 Unicast
 func (p *producer) nlri(op int, ph *bmp.PerPeerHeader, update *bgp.Update) ([]*UnicastPrefix, error) {
+	sysName, sysDescr := p.sessionEnrich()
 	var operation string
 	var routes []base.Route
 	// Use per-table AddPath capability
@@ -46,6 +47,8 @@ func (p *producer) nlri(op int, ph *bmp.PerPeerHeader, update *bgp.Update) ([]*U
 				Action:     operation,
 				RouterHash: p.speakerHash,
 				RouterIP:   p.speakerIP,
+		        SysName:    sysName,
+		        SysDescr:   sysDescr,
 				PeerHash:   ph.GetPeerHash(),
 				PeerASN:    ph.PeerAS,
 				Timestamp:  ph.GetPeerTimestamp(),
@@ -59,6 +62,8 @@ func (p *producer) nlri(op int, ph *bmp.PerPeerHeader, update *bgp.Update) ([]*U
 			Action:         operation,
 			RouterHash:     p.speakerHash,
 			RouterIP:       p.speakerIP,
+		    SysName:        sysName,
+		    SysDescr:       sysDescr,
 			PeerHash:       ph.GetPeerHash(),
 			PeerASN:        ph.PeerAS,
 			Timestamp:      ph.GetPeerTimestamp(),

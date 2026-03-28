@@ -62,6 +62,7 @@ func (p *producer) producePeerMessage(op int, msg bmp.Message) {
 		p.speakerHash = fmt.Sprintf("%x", md5.Sum([]byte(p.speakerIP)))
 		m.RouterIP = p.speakerIP
 		m.RouterHash = p.speakerHash
+		m.SysName, m.SysDescr = p.sessionEnrich()
 
 		m.LocalASN = uint32(peerUpMsg.SentOpen.MyAS)
 		if lasn, ok := peerUpMsg.SentOpen.Is4BytesASCapable(); ok {
@@ -111,9 +112,12 @@ func (p *producer) producePeerMessage(op int, msg bmp.Message) {
 			glog.Errorf("got invalid Payload type in bmp.Message")
 			return
 		}
+	    sysName, sysDescr := p.sessionEnrich()
 		m = PeerStateChange{
 			Action:     "down",
 			RouterIP:   p.speakerIP,
+		    SysName:    sysName,
+		    SysDescr:   sysDescr,
 			PeerType:   uint8(msg.PeerHeader.PeerType),
 			RouterHash: p.speakerHash,
 			BMPReason:  int(peerDownMsg.Reason),

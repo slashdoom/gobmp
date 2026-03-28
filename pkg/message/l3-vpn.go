@@ -28,10 +28,13 @@ func (p *producer) l3vpn(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, update 
 	}
 	prfxs := make([]L3VPNPrefix, 0)
 	for _, e := range nlril3vpn.NLRI {
+	sysName, sysDescr := p.sessionEnrich()
 		prfx := L3VPNPrefix{
 			Action:         operation,
 			RouterHash:     p.speakerHash,
 			RouterIP:       p.speakerIP,
+		    SysName:        sysName,
+		    SysDescr:       sysDescr,
 			PeerType:       uint8(ph.PeerType),
 			PeerHash:       ph.GetPeerHash(),
 			PeerASN:        ph.PeerAS,

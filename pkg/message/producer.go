@@ -29,6 +29,8 @@ type Config struct {
 	// AdminID is the collector identifier for RAW messages
 	// Used to generate collector hash for OpenBMP compatibility
 	AdminID string
+	// SessionTracking enables in-memory session enrichment of published messages
+	SessionTracking bool
 }
 
 // Producer defines methods to act as a message producer
@@ -52,6 +54,10 @@ type producer struct {
 	collectorAdminID string
 	// adminHash is the MD5 hash of the admin ID for RAW messages
 	adminHash string
+	// sessionTracking enables enrichment of published messages with session data
+	sessionTracking    bool
+	tcpSpeakerIP       string  // TCP source IP, set from first message, constant per connection
+	pendingSessionInit *sessionInitData
 }
 
 // Producer dispatches kafka workers upon request received from the channel
@@ -68,6 +74,9 @@ func (p *producer) Producer(queue chan bmp.Message, stop chan struct{}) {
 }
 
 func (p *producer) producingWorker(msg bmp.Message) {
+	if p.tcpSpeakerIP == "" && msg.SpeakerIP != "" {
+		p.tcpSpeakerIP = msg.SpeakerIP
+	}
 	switch obj := msg.Payload.(type) {
 	case *bmp.PeerUpMessage:
 		p.producePeerMessage(peerUP, msg)
@@ -79,6 +88,8 @@ func (p *producer) producingWorker(msg bmp.Message) {
 		p.produceStatsMessage(msg)
 	case *bmp.RawMessage:
 		p.produceRawMessage(msg)
+	case *bmp.InitiationMessage:
+		p.produceSessionInitMessage(msg)
 	default:
 		glog.Warningf("got Unknown message %T to push to the producer, ignoring it...", obj)
 	}
@@ -98,6 +109,7 @@ func (p *producer) SetConfig(config *Config) error {
 		hash := md5.Sum([]byte(config.AdminID))
 		p.adminHash = hex.EncodeToString(hash[:])
 	}
+	p.sessionTracking = config.SessionTracking
 
 	return nil
 }

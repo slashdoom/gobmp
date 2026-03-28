@@ -40,12 +40,15 @@ func (p *producer) produceStatsMessage(msg bmp.Message) {
 		return
 	}
 
+	sysName, sysDescr := p.sessionEnrich()
 	m := Stats{
 		RemoteASN:  msg.PeerHeader.PeerAS,
 		PeerRD:     msg.PeerHeader.GetPeerDistinguisherString(),
 		Timestamp:  msg.PeerHeader.GetPeerTimestamp(),
 		RouterHash: p.speakerHash,
 		RouterIP:   p.speakerIP,
+		SysName:    sysName,
+		SysDescr:   sysDescr,
 		PeerType:   uint8(msg.PeerHeader.PeerType),
 	}
 	m.RemoteIP = msg.PeerHeader.GetPeerAddrString()

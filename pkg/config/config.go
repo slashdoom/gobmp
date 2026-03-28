@@ -43,7 +43,8 @@ type DumpConfig struct {
 }
 
 type NATSConfig struct {
-	NatsSrv string `yaml:"nats_srv"`
+	NatsSrv         string `yaml:"nats_srv"`
+	SessionTracking bool   `yaml:"session_tracking"`
 }
 
 type KafkaConfig struct {
@@ -52,6 +53,7 @@ type KafkaConfig struct {
 	KafkaTopicPrefix  string `yaml:"kafka_topic_prefix"`
 	BmpRaw            bool   `yaml:"bmp_raw"`
 	AdminID           string `yaml:"admin_id"`
+	SessionTracking   bool   `yaml:"session_tracking"`
 }
 
 type Config struct {

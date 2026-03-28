@@ -11,6 +11,7 @@ import (
 
 // multicast process nlri 14 afi 1/2 safi 2 messages and generates MulticastPrefix messages
 func (p *producer) multicast(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, update *bgp.Update) ([]*MulticastPrefix, error) {
+	sysName, sysDescr := p.sessionEnrich()
 	var operation string
 	switch op {
 	case 0:
@@ -33,6 +34,8 @@ func (p *producer) multicast(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, upd
 				Action:     operation,
 				RouterHash: p.speakerHash,
 				RouterIP:   p.speakerIP,
+		        SysName:    sysName,
+		        SysDescr:   sysDescr,
 				PeerHash:   ph.GetPeerHash(),
 				PeerASN:    ph.PeerAS,
 				Timestamp:  ph.GetPeerTimestamp(),
@@ -46,6 +49,8 @@ func (p *producer) multicast(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, upd
 			Action:         operation,
 			RouterHash:     p.speakerHash,
 			RouterIP:       p.speakerIP,
+		SysName:         sysName,
+		SysDescr:        sysDescr,
 			PeerType:       uint8(ph.PeerType),
 			PeerHash:       ph.GetPeerHash(),
 			PeerASN:        ph.PeerAS,

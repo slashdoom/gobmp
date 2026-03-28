@@ -20,10 +20,13 @@ func (p *producer) lsLink(link *base.LinkNLRI, nextHop string, op int, ph *bmp.P
 	default:
 		return nil, fmt.Errorf("unknown operation %d", op)
 	}
+	sysName, sysDescr := p.sessionEnrich()
 	msg := LSLink{
 		Action:     operation,
 		RouterHash: p.speakerHash,
 		RouterIP:   p.speakerIP,
+		SysName:    sysName,
+		SysDescr:   sysDescr,
 		PeerType:   uint8(ph.PeerType),
 		PeerHash:   ph.GetPeerHash(),
 		PeerASN:    ph.PeerAS,

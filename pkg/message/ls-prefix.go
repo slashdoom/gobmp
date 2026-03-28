@@ -19,10 +19,13 @@ func (p *producer) lsPrefix(prfx *base.PrefixNLRI, nextHop string, op int, ph *b
 	default:
 		return nil, fmt.Errorf("unknown operation %d", op)
 	}
+	sysName, sysDescr := p.sessionEnrich()
 	msg := LSPrefix{
 		Action:     operation,
 		RouterHash: p.speakerHash,
 		RouterIP:   p.speakerIP,
+		SysName:    sysName,
+		SysDescr:   sysDescr,
 		PeerType:   uint8(ph.PeerType),
 		PeerHash:   ph.GetPeerHash(),
 		PeerASN:    ph.PeerAS,

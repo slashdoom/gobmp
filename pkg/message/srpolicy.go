@@ -24,10 +24,13 @@ func (p *producer) srpolicy(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, upda
 	default:
 		return nil, fmt.Errorf("unknown operation %d", op)
 	}
+	sysName, sysDescr := p.sessionEnrich()
 	prfx := SRPolicy{
 		Action:         operation,
 		RouterHash:     p.speakerHash,
 		RouterIP:       p.speakerIP,
+		SysName:        sysName,
+		SysDescr:       sysDescr,
 		PeerType:       uint8(ph.PeerType),
 		PeerHash:       ph.GetPeerHash(),
 		PeerASN:        ph.PeerAS,

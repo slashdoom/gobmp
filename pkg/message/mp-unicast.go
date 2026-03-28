@@ -12,6 +12,7 @@ import (
 
 // unicast process nlri 14 afi 1/2 safi 1 messages and generates UnicastPrefix messages
 func (p *producer) unicast(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, update *bgp.Update, label bool) ([]*UnicastPrefix, error) {
+	sysName, sysDescr := p.sessionEnrich()
 	var err error
 	var operation string
 	switch op {
@@ -43,6 +44,8 @@ func (p *producer) unicast(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, updat
 				Action:     operation,
 				RouterHash: p.speakerHash,
 				RouterIP:   p.speakerIP,
+		        SysName:    sysName,
+		        SysDescr:   sysDescr,
 				PeerHash:   ph.GetPeerHash(),
 				PeerASN:    ph.PeerAS,
 				Timestamp:  ph.GetPeerTimestamp(),
@@ -56,6 +59,8 @@ func (p *producer) unicast(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, updat
 			Action:         operation,
 			RouterHash:     p.speakerHash,
 			RouterIP:       p.speakerIP,
+		    SysName:        sysName,
+		    SysDescr:       sysDescr,
 			PeerType:       uint8(ph.PeerType),
 			PeerHash:       ph.GetPeerHash(),
 			PeerASN:        ph.PeerAS,

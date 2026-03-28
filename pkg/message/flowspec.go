@@ -46,9 +46,12 @@ func (p *producer) flowspec(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, upda
 
 // buildFlowspecMessage constructs a single Flowspec message. Pass nil fsnlri for withdraw-all.
 func (p *producer) buildFlowspecMessage(operation string, nlri bgp.MPNLRI, ph *bmp.PerPeerHeader, update *bgp.Update, fsnlri *flowspec.NLRI) *Flowspec {
+	sysName, sysDescr := p.sessionEnrich()
 	fs := &Flowspec{
 		Action:         operation,
 		RouterIP:       p.speakerIP,
+		SysName:        sysName,
+		SysDescr:       sysDescr,
 		PeerType:       uint8(ph.PeerType),
 		PeerASN:        ph.PeerAS,
 		Timestamp:      ph.GetPeerTimestamp(),

@@ -33,8 +33,9 @@ type bmpServer struct {
 	mu        sync.Mutex            // protects clients and closing
 	clients   map[net.Conn]struct{} // active bmpWorker connections
 	closing   bool                  // set to true in Stop() before iterating clients
-	bmpRaw    bool
-	adminID   string
+	bmpRaw          bool
+	adminID         string
+	sessionTracking bool
 }
 
 func (srv *bmpServer) Start() {
@@ -137,7 +138,8 @@ func (srv *bmpServer) bmpWorker(client net.Conn) {
 
 	// Configure producer with admin ID for RAW message support
 	if err := prod.SetConfig(&message.Config{
-		AdminID: srv.adminID,
+		AdminID:         srv.adminID,
+		SessionTracking: srv.sessionTracking,
 	}); err != nil {
 		glog.Errorf("failed to configure producer with error: %+v", err)
 		return
@@ -182,8 +184,9 @@ func (srv *bmpServer) bmpWorker(client net.Conn) {
 	parsStop := make(chan struct{})
 	// Starting parser per client with dedicated work queue
 	parserConfig := &parser.Config{
-		EnableRawMode: srv.bmpRaw,
-		SpeakerIP:     speakerIP,
+		EnableRawMode:   srv.bmpRaw,
+		SpeakerIP:       speakerIP,
+		SessionTracking: srv.sessionTracking,
 	}
 	p := parser.NewParser(parserQueue, producerQueue, parsStop, parserConfig)
 	go p.Start()
@@ -273,6 +276,10 @@ func NewBMPServer(cfg *config.Config) (BMPServer, error) {
 	if cfg.PublisherType == config.PublisherTypeKafka && cfg.KafkaConfig != nil {
 		bmpSrv.bmpRaw = cfg.KafkaConfig.BmpRaw
 		bmpSrv.adminID = cfg.KafkaConfig.AdminID
+		bmpSrv.sessionTracking = cfg.KafkaConfig.SessionTracking
+	}
+	if cfg.PublisherType == config.PublisherTypeNATS && cfg.NATSConfig != nil {
+		bmpSrv.sessionTracking = cfg.NATSConfig.SessionTracking
 	}
 
 	return &bmpSrv, nil

@@ -28,6 +28,8 @@ type PeerStateChange struct {
 	Name            string         `json:"name,omitempty"`
 	RemoteBGPID     string         `json:"remote_bgp_id,omitempty"`
 	RouterIP        string         `json:"router_ip,omitempty"`
+	SysName         string         `json:"sys_name,omitempty"`
+	SysDescr        string         `json:"sys_descr,omitempty"`
 	Timestamp       string         `json:"timestamp,omitempty"`
 	RemoteASN       uint32         `json:"remote_asn,omitempty"`
 	RemoteIP        string         `json:"remote_ip,omitempty"`
@@ -70,6 +72,8 @@ type UnicastPrefix struct {
 	Hash             string              `json:"hash,omitempty"`
 	RouterHash       string              `json:"router_hash,omitempty"`
 	RouterIP         string              `json:"router_ip,omitempty"`
+	SysName          string              `json:"sys_name,omitempty"`
+	SysDescr         string              `json:"sys_descr,omitempty"`
 	BaseAttributes   *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerHash         string              `json:"peer_hash,omitempty"`
 	PeerIP           string              `json:"peer_ip,omitempty"`
@@ -212,6 +216,8 @@ type LSNode struct {
 	RouterHash          string                          `json:"router_hash,omitempty"`
 	DomainID            int64                           `json:"domain_id"`
 	RouterIP            string                          `json:"router_ip,omitempty"`
+	SysName             string                          `json:"sys_name,omitempty"`
+	SysDescr            string                          `json:"sys_descr,omitempty"`
 	PeerHash            string                          `json:"peer_hash,omitempty"`
 	PeerIP              string                          `json:"peer_ip,omitempty"`
 	PeerType            uint8                           `json:"peer_type"`
@@ -252,6 +258,8 @@ type LSLink struct {
 	Hash                  string                        `json:"hash,omitempty"`
 	RouterHash            string                        `json:"router_hash,omitempty"`
 	RouterIP              string                        `json:"router_ip,omitempty"`
+	SysName               string                        `json:"sys_name,omitempty"`
+	SysDescr              string                        `json:"sys_descr,omitempty"`
 	DomainID              int64                         `json:"domain_id"`
 	PeerHash              string                        `json:"peer_hash,omitempty"`
 	PeerIP                string                        `json:"peer_ip,omitempty"`
@@ -327,6 +335,8 @@ type MulticastPrefix struct {
 	Hash           string              `json:"hash,omitempty"`
 	RouterHash     string              `json:"router_hash,omitempty"`
 	RouterIP       string              `json:"router_ip,omitempty"`
+	SysName        string              `json:"sys_name,omitempty"`
+	SysDescr       string              `json:"sys_descr,omitempty"`
 	BaseAttributes *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerHash       string              `json:"peer_hash,omitempty"`
 	PeerIP         string              `json:"peer_ip,omitempty"`
@@ -361,6 +371,8 @@ type MCASTVPNPrefix struct {
 	Hash            string              `json:"hash,omitempty"`
 	RouterHash      string              `json:"router_hash,omitempty"`
 	RouterIP        string              `json:"router_ip,omitempty"`
+	SysName         string              `json:"sys_name,omitempty"`
+	SysDescr        string              `json:"sys_descr,omitempty"`
 	BaseAttributes  *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerHash        string              `json:"peer_hash,omitempty"`
 	PeerIP          string              `json:"peer_ip,omitempty"`
@@ -401,6 +413,8 @@ type RTCPrefix struct {
 	Hash           string              `json:"hash,omitempty"`
 	RouterHash     string              `json:"router_hash,omitempty"`
 	RouterIP       string              `json:"router_ip,omitempty"`
+	SysName        string              `json:"sys_name,omitempty"`
+	SysDescr       string              `json:"sys_descr,omitempty"`
 	BaseAttributes *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerHash       string              `json:"peer_hash,omitempty"`
 	PeerIP         string              `json:"peer_ip,omitempty"`
@@ -431,6 +445,8 @@ type L3VPNPrefix struct {
 	Hash             string              `json:"hash,omitempty"`
 	RouterHash       string              `json:"router_hash,omitempty"`
 	RouterIP         string              `json:"router_ip,omitempty"`
+	SysName          string              `json:"sys_name,omitempty"`
+	SysDescr         string              `json:"sys_descr,omitempty"`
 	BaseAttributes   *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerHash         string              `json:"peer_hash,omitempty"`
 	PeerIP           string              `json:"peer_ip,omitempty"`
@@ -469,6 +485,8 @@ type LSPrefix struct {
 	Hash                 string                        `json:"hash,omitempty"`
 	RouterHash           string                        `json:"router_hash,omitempty"`
 	RouterIP             string                        `json:"router_ip,omitempty"`
+	SysName              string                        `json:"sys_name,omitempty"`
+	SysDescr             string                        `json:"sys_descr,omitempty"`
 	DomainID             int64                         `json:"domain_id"`
 	PeerHash             string                        `json:"peer_hash,omitempty"`
 	PeerIP               string                        `json:"peer_ip,omitempty"`
@@ -514,6 +532,8 @@ type LSSRv6SID struct {
 	Hash                 string                        `json:"hash,omitempty"`
 	RouterHash           string                        `json:"router_hash,omitempty"`
 	RouterIP             string                        `json:"router_ip,omitempty"`
+	SysName              string                        `json:"sys_name,omitempty"`
+	SysDescr             string                        `json:"sys_descr,omitempty"`
 	DomainID             int64                         `json:"domain_id"`
 	PeerHash             string                        `json:"peer_hash,omitempty"`
 	PeerIP               string                        `json:"peer_ip,omitempty"`
@@ -560,6 +580,8 @@ type EVPNPrefix struct {
 	Hash           string              `json:"hash,omitempty"`
 	RouterHash     string              `json:"router_hash,omitempty"`
 	RouterIP       string              `json:"router_ip,omitempty"`
+	SysName        string              `json:"sys_name,omitempty"`
+	SysDescr       string              `json:"sys_descr,omitempty"`
 	BaseAttributes *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerHash       string              `json:"peer_hash,omitempty"`
 	RemoteBGPID    string              `json:"remote_bgp_id,omitempty"`
@@ -606,6 +628,8 @@ type VPLSPrefix struct {
 	Hash           string              `json:"hash,omitempty"`
 	RouterHash     string              `json:"router_hash,omitempty"`
 	RouterIP       string              `json:"router_ip,omitempty"`
+	SysName        string              `json:"sys_name,omitempty"`
+	SysDescr       string              `json:"sys_descr,omitempty"`
 	BaseAttributes *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerHash       string              `json:"peer_hash,omitempty"`
 	RemoteBGPID    string              `json:"remote_bgp_id,omitempty"`
@@ -660,6 +684,8 @@ type SRPolicy struct {
 	Hash           string                  `json:"hash,omitempty"`
 	RouterHash     string                  `json:"router_hash,omitempty"`
 	RouterIP       string                  `json:"router_ip,omitempty"`
+	SysName        string                  `json:"sys_name,omitempty"`
+	SysDescr       string                  `json:"sys_descr,omitempty"`
 	BaseAttributes *bgp.BaseAttributes     `json:"base_attrs,omitempty"`
 	PeerHash       string                  `json:"peer_hash,omitempty"`
 	PeerIP         string                  `json:"peer_ip,omitempty"`
@@ -700,6 +726,8 @@ type Flowspec struct {
 	Action         string              `json:"action,omitempty"` // Action can be "add" or "del"
 	Sequence       int                 `json:"sequence,omitempty"`
 	RouterIP       string              `json:"router_ip,omitempty"`
+	SysName        string              `json:"sys_name,omitempty"`
+	SysDescr       string              `json:"sys_descr,omitempty"`
 	BaseAttributes *bgp.BaseAttributes `json:"base_attrs,omitempty"`
 	PeerIP         string              `json:"peer_ip,omitempty"`
 	PeerType       uint8               `json:"peer_type"`
@@ -736,6 +764,8 @@ type Stats struct {
 	Sequence                   int    `json:"sequence,omitempty"`
 	RouterHash                 string `json:"router_hash,omitempty"`
 	RouterIP                   string `json:"router_ip,omitempty"`
+	SysName                    string `json:"sys_name,omitempty"`
+	SysDescr                   string `json:"sys_descr,omitempty"`
 	PeerType                   uint8  `json:"peer_type"`
 	RemoteBGPID                string `json:"remote_bgp_id,omitempty"`
 	RemoteASN                  uint32 `json:"remote_asn,omitempty"`

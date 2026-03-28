@@ -18,10 +18,13 @@ func (p *producer) lsSRv6SID(nlri6 *srv6.SIDNLRI, nextHop string, op int, ph *bm
 	default:
 		return nil, fmt.Errorf("unknown operation %d", op)
 	}
+	sysName, sysDescr := p.sessionEnrich()
 	msg := LSSRv6SID{
 		Action:     operation,
 		RouterHash: p.speakerHash,
 		RouterIP:   p.speakerIP,
+		SysName:    sysName,
+		SysDescr:   sysDescr,
 		PeerType:   uint8(ph.PeerType),
 		PeerHash:   ph.GetPeerHash(),
 		PeerASN:    ph.PeerAS,

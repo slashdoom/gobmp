@@ -15,6 +15,9 @@ type Config struct {
 	// SpeakerIP is the BMP speaker's IP from the TCP connection.
 	// Set on all bmp.Message values for consistent router identity across message types.
 	SpeakerIP string
+	// SessionTracking when true forwards BMP Initiation messages to the producer
+	// for in-memory session enrichment of published messages.
+	SessionTracking bool
 }
 
 // parser holds parser state and configuration.
@@ -195,9 +198,13 @@ func (p *parser) parsingWorker(b []byte) {
 				return
 			}
 		case bmp.InitiationMsg:
-			if _, err := bmp.UnmarshalInitiationMessage(b[pos : pos+msgLen-bmp.CommonHeaderLength]); err != nil {
+			im, err := bmp.UnmarshalInitiationMessage(b[pos : pos+msgLen-bmp.CommonHeaderLength])
+			if err != nil {
 				glog.Errorf("fail to recover BMP Initiation message with error: %+v", err)
 				return
+			}
+			if p.config.SessionTracking {
+				bmpMsg.Payload = im
 			}
 		case bmp.TerminationMsg:
 			tm, err := bmp.UnmarshalTerminationMessage(b[pos : pos+msgLen-bmp.CommonHeaderLength])

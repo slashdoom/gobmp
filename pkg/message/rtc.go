@@ -10,6 +10,7 @@ import (
 
 // rtc processes MP_REACH_NLRI/MP_UNREACH_NLRI AFI 1/2 SAFI 132 (Route Target Constraint)
 func (p *producer) rtc(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, update *bgp.Update) ([]*RTCPrefix, error) {
+	sysName, sysDescr := p.sessionEnrich()
 	var operation string
 	switch op {
 	case 0:
@@ -33,6 +34,8 @@ func (p *producer) rtc(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, update *b
 				Action:     operation,
 				RouterHash: p.speakerHash,
 				RouterIP:   p.speakerIP,
+		        SysName:    sysName,
+		        SysDescr:   sysDescr,
 				PeerHash:   ph.GetPeerHash(),
 				PeerASN:    ph.PeerAS,
 				Timestamp:  ph.GetPeerTimestamp(),
@@ -47,6 +50,8 @@ func (p *producer) rtc(nlri bgp.MPNLRI, op int, ph *bmp.PerPeerHeader, update *b
 			Action:         operation,
 			RouterHash:     p.speakerHash,
 			RouterIP:       p.speakerIP,
+		    SysName:        sysName,
+		    SysDescr:       sysDescr,
 			PeerType:       uint8(ph.PeerType),
 			PeerHash:       ph.GetPeerHash(),
 			PeerASN:        ph.PeerAS,

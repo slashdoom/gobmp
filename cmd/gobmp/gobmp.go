@@ -33,6 +33,7 @@ var (
 	file              string
 	bmpRaw            string
 	adminID           string
+	sessionTracking   string
 	configFile        string
 )
 
@@ -56,6 +57,7 @@ func init() {
 	flag.StringVar(&file, "msg-file", "", "Full path and file name to store messages when \"--dump=file\"")
 	flag.StringVar(&bmpRaw, "bmp-raw", "false", "When set \"true\", BMP messages are published in RAW format without parsing (OpenBMP compatibility mode)")
 	flag.StringVar(&adminID, "admin-id", "", "Collector admin ID for RAW messages (defaults to hostname). Used to generate collector hash for OpenBMP compatibility")
+	flag.StringVar(&sessionTracking, "session-tracking", "false", "When set \"true\", enriches published messages with BMP session data (sys_name, sys_descr, speaker_ip)")
 }
 
 // fatal logs msg at error level, flushes glog's buffer, and exits with code 1.
@@ -207,7 +209,7 @@ func applyConfigOverrides(cfg *config.Config, fs *flag.FlagSet) error {
 	// visitErr captures the first error from inside the closure (fs.Visit
 	// does not support early termination, so we skip further cases once set).
 	var visitErr error
-	var bmpRawSet, adminIDSet bool
+	var bmpRawSet, adminIDSet, sessionTrackingSet bool
 	fs.Visit(func(f *flag.Flag) {
 		if visitErr != nil {
 			return
@@ -300,6 +302,16 @@ func applyConfigOverrides(cfg *config.Config, fs *flag.FlagSet) error {
 					cfg.KafkaConfig.AdminID = hostname
 				}
 			}
+		case "session-tracking":
+			if sessionTracking == "" {
+				visitErr = errors.New("invalid empty value for --session-tracking")
+				return
+			}
+			if v, err := strconv.ParseBool(sessionTracking); err != nil {
+				visitErr = fmt.Errorf("invalid value for --session-tracking: %q: %w", sessionTracking, err)
+			} else if v {
+				sessionTrackingSet = true
+			}
 		}
 	})
 	if visitErr != nil {
@@ -330,6 +342,23 @@ func applyConfigOverrides(cfg *config.Config, fs *flag.FlagSet) error {
 			cfg.KafkaConfig.AdminID = "gobmp-collector"
 		} else {
 			cfg.KafkaConfig.AdminID = hostname
+		}
+	}
+	// Apply session-tracking to the appropriate publisher config.
+	if sessionTrackingSet {
+		switch cfg.PublisherType {
+		case config.PublisherTypeKafka:
+			if cfg.KafkaConfig == nil {
+				cfg.KafkaConfig = defaultKafkaConfig()
+			}
+			cfg.KafkaConfig.SessionTracking = true
+		case config.PublisherTypeNATS:
+			if cfg.NATSConfig == nil {
+				cfg.NATSConfig = &config.NATSConfig{}
+			}
+			cfg.NATSConfig.SessionTracking = true
+		default:
+			glog.Warningf("--session-tracking is set but has no effect: no publisher configured")
 		}
 	}
 	// Warn when Kafka-specific flags were provided but Kafka is not the selected
